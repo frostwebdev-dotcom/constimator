@@ -4,6 +4,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
+import { cn } from "@/lib/utils"
 
 function GoogleIcon() {
   return (
@@ -32,27 +33,37 @@ export function GoogleAuthButton({
   label,
   redirectTo = "/dashboard",
   onError,
+  className,
+  disabled = false,
 }: {
   label: string
   redirectTo?: string
   onError: (message: string) => void
+  className?: string
+  disabled?: boolean
 }) {
   const [loading, setLoading] = useState(false)
 
   async function handleClick() {
     setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
-      },
-    })
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`,
+        },
+      })
 
-    // On success, Supabase navigates the browser to Google — nothing left
-    // to do here. We only ever reach the branch below on failure.
-    if (error) {
-      onError(error.message)
+      // Keep the loading state until Google navigation completes on success.
+      if (error) {
+        onError(error.message)
+        setLoading(false)
+      }
+    } catch {
+      onError(
+        "Unable to connect to Google. Please try again or sign in with your email."
+      )
       setLoading(false)
     }
   }
@@ -61,9 +72,10 @@ export function GoogleAuthButton({
     <Button
       type="button"
       variant="outline"
-      className="w-full"
+      className={cn("w-full", className)}
       onClick={handleClick}
-      disabled={loading}
+      disabled={disabled || loading}
+      aria-busy={loading}
     >
       <GoogleIcon />
       {loading ? "Redirecting…" : label}

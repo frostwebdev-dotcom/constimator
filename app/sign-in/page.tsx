@@ -1,135 +1,38 @@
-"use client"
+import { Suspense } from "react"
+import type { Metadata } from "next"
+import { LoaderCircle, LogIn } from "lucide-react"
 
-import { Suspense, useState } from "react"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
+import { AuthPage } from "@/components/auth/auth-page"
+import styles from "@/components/auth/auth-page.module.css"
+import { SignInForm } from "./sign-in-form"
 
-import { AuthDivider } from "@/components/auth/auth-divider"
-import { GoogleAuthButton } from "@/components/auth/google-auth-button"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { PasswordInput } from "@/components/ui/password-input"
-import { createClient } from "@/lib/supabase/client"
-
-function SignInForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const redirectTo = searchParams.get("redirect") || "/dashboard"
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(searchParams.get("error"))
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
-    }
-
-    router.push(redirectTo)
-    router.refresh()
-  }
-
-  return (
-    <div className="flex min-h-svh flex-1 items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Sign in to Constimator</CardTitle>
-          <CardDescription>
-            Enter your email and password to access your account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <GoogleAuthButton
-              label="Continue with Google"
-              redirectTo={redirectTo}
-              onError={setError}
-            />
-            <AuthDivider />
-          </div>
-          <form onSubmit={handleSubmit} className="mt-4">
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs text-primary underline-offset-4 hover:underline"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <PasswordInput
-                  id="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                />
-              </Field>
-              <Field>
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? "Signing in…" : "Sign in"}
-                </Button>
-              </Field>
-              <p className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link
-                  href="/sign-up"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </FieldGroup>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
-  )
+export const metadata: Metadata = {
+  title: "Sign in | Constimator",
+  description:
+    "Sign in to your Constimator workspace and get back to building your next bid.",
 }
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={null}>
-      <SignInForm />
-    </Suspense>
+    <AuthPage headingId="sign-in-heading">
+      <div className={styles.formIntro}>
+        <span className={styles.welcomeIcon} aria-hidden="true">
+          <LogIn size={25} strokeWidth={1.6} />
+        </span>
+        <p className={styles.formEyebrow}>YOUR NEXT PROJECT STARTS HERE</p>
+        <h1 id="sign-in-heading">Welcome back.</h1>
+        <p>Sign in to your Constimator workspace.</p>
+      </div>
+      <Suspense
+        fallback={
+          <div className={styles.formLoading} role="status">
+            <LoaderCircle className={styles.spinner} aria-hidden="true" />
+            Loading sign-in…
+          </div>
+        }
+      >
+        <SignInForm />
+      </Suspense>
+    </AuthPage>
   )
 }

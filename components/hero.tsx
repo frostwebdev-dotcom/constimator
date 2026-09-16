@@ -111,6 +111,29 @@ export function Hero() {
                   <path d="M3 16Q82 0 176 4L31 17 159 1" />
                 </svg>
               </div>
+              <div className={styles.reviewVisual} aria-hidden="true">
+                <div className={styles.reviewVisualHeader}>
+                  <span>
+                    <FileText size={20} strokeWidth={1.7} />
+                  </span>
+                  <div>
+                    <small>Bid reconciliation</small>
+                    <strong>Estimate + bid form</strong>
+                  </div>
+                </div>
+                <div className={styles.reviewLines}>
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div className={styles.reviewVisualStatus}>
+                  <ShieldCheck size={18} strokeWidth={1.8} />
+                  <div>
+                    <strong>Line-by-line review</strong>
+                    <small>Every item considered</small>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className={styles.featureGrid}>
               {features.map(({ icon: Icon, ...feature }) => (
@@ -125,7 +148,14 @@ export function Hero() {
                     <Icon size={24} strokeWidth={1.7} aria-hidden="true" />
                   </span>
                   <strong>{feature.title}</strong>
-                  <span>{feature.subtitle}</span>
+                  <span className={styles.featureSubtitle}>
+                    {feature.subtitle}
+                  </span>
+                  <ArrowRight
+                    className={styles.featureArrow}
+                    size={16}
+                    aria-hidden="true"
+                  />
                 </a>
               ))}
             </div>
