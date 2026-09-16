@@ -17,6 +17,20 @@
   border-top: 1px solid var(--border);
   background: var(--background);
   overflow: clip;
+  perspective: 1400px;
+}
+.section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0.1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#ffffff12 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff12 1px, transparent 1px);
+  background-size: 62px 62px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000, transparent 72%);
 }
 .atmosphere {
   position: absolute;
@@ -26,16 +40,36 @@
 }
 .atmosphere[data-tone="glow"] {
   background:
-    radial-gradient(ellipse at 88% 8%, color-mix(in oklab, var(--glow) 11%, transparent), transparent 40%),
-    radial-gradient(ellipse at 6% 92%, color-mix(in oklab, var(--primary) 6%, transparent), transparent 36%);
+    radial-gradient(
+      ellipse at 88% 8%,
+      color-mix(in oklab, var(--glow) 11%, transparent),
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 6% 92%,
+      color-mix(in oklab, var(--primary) 6%, transparent),
+      transparent 36%
+    );
 }
 .atmosphere[data-tone="primary"] {
   background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 44%),
-    radial-gradient(ellipse at 90% 100%, color-mix(in oklab, var(--glow) 8%, transparent), transparent 36%);
+    radial-gradient(
+      ellipse at 50% 0%,
+      color-mix(in oklab, var(--primary) 10%, transparent),
+      transparent 44%
+    ),
+    radial-gradient(
+      ellipse at 90% 100%,
+      color-mix(in oklab, var(--glow) 8%, transparent),
+      transparent 36%
+    );
 }
 .atmosphere[data-tone="quiet"] {
-  background: radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--glow) 7%, transparent), transparent 42%);
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    color-mix(in oklab, var(--glow) 7%, transparent),
+    transparent 42%
+  );
 }
 .inner {
   max-width: 1180px;
@@ -74,6 +108,11 @@
   letter-spacing: 1px;
   font-weight: 600;
   text-transform: uppercase;
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--primary) 18%, black),
+    0 8px 20px #00000018,
+    inset 0 1px 0 #ffffff12;
+  transform: perspective(300px) rotateX(3deg);
 }
 .eyebrow > span {
   width: 5px;
@@ -98,6 +137,7 @@
   font-weight: 750;
   letter-spacing: -0.035em;
   text-wrap: balance;
+  text-shadow: 0 14px 30px #00000029;
 }
 .title > em {
   font-style: normal;
@@ -114,6 +154,7 @@
 /* ---------------------------------------------------------------- panels */
 .panel {
   position: relative;
+  isolation: isolate;
   border-radius: 16px;
   border: 1px solid color-mix(in oklab, var(--glow) 22%, var(--border));
   background: linear-gradient(
@@ -122,18 +163,30 @@
     color-mix(in oklab, var(--background) 90%, transparent)
   );
   box-shadow:
+    0 5px 0 color-mix(in oklab, var(--glow) 7%, #030811),
     0 0 0 1px color-mix(in oklab, var(--glow) 6%, transparent),
     0 0 24px color-mix(in oklab, var(--glow) 8%, transparent),
     0 18px 48px -28px color-mix(in oklab, var(--glow) 40%, transparent);
+  transform-style: preserve-3d;
   transition:
-    transform 0.2s,
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
     border-color 0.2s,
-    box-shadow 0.2s;
+    box-shadow 0.28s;
+}
+.panel::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, #ffffff0e, transparent 38%, #ffffff03);
 }
 .panelLift:hover {
-  transform: translateY(-3px);
+  transform: perspective(800px) translateY(-6px) rotateX(2deg) rotateY(-1.5deg);
   border-color: color-mix(in oklab, var(--glow) 42%, transparent);
   box-shadow:
+    0 8px 0 color-mix(in oklab, var(--glow) 8%, #030811),
     0 0 0 1px color-mix(in oklab, var(--glow) 10%, transparent),
     0 0 32px color-mix(in oklab, var(--glow) 14%, transparent),
     0 24px 56px -28px color-mix(in oklab, var(--glow) 55%, transparent);
@@ -142,6 +195,7 @@
 .panelPrimary {
   border-color: color-mix(in oklab, var(--primary) 55%, transparent);
   box-shadow:
+    0 6px 0 color-mix(in oklab, var(--primary) 21%, #030811),
     0 0 0 1px color-mix(in oklab, var(--primary) 14%, transparent),
     0 0 36px color-mix(in oklab, var(--primary) 16%, transparent),
     0 24px 60px -28px color-mix(in oklab, var(--primary) 55%, transparent);
@@ -158,6 +212,12 @@
   border: 1px solid var(--border);
   background: color-mix(in oklab, var(--muted) 80%, transparent);
   color: var(--foreground);
+  box-shadow:
+    0 4px 0 color-mix(in oklab, var(--background) 75%, black),
+    0 10px 20px #00000020,
+    inset 0 1px 0 #ffffff17;
+  transform: translateZ(18px) rotateY(-5deg) rotateX(3deg);
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .iconTile[data-tone="primary"] {
   border-color: color-mix(in oklab, var(--primary) 30%, transparent);
@@ -166,7 +226,11 @@
 }
 .iconTile[data-tone="primarySolid"] {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  background: linear-gradient(
+    135deg,
+    var(--primary-light),
+    var(--primary-dark)
+  );
   color: var(--primary-foreground);
   box-shadow: 0 6px 18px color-mix(in oklab, var(--primary) 30%, transparent);
 }
@@ -224,28 +288,101 @@
     box-shadow 0.2s,
     background 0.2s,
     border-color 0.2s;
+  transform-style: preserve-3d;
 }
 .buttonPrimary {
   color: var(--primary-foreground);
   border: 1px solid color-mix(in oklab, var(--primary-light) 44%, transparent);
-  background: linear-gradient(115deg, var(--primary-light), var(--primary-dark));
+  background: linear-gradient(
+    115deg,
+    var(--primary-light),
+    var(--primary-dark)
+  );
   box-shadow:
-    0 5px 24px color-mix(in oklab, var(--primary) 24%, transparent),
+    0 4px 0 color-mix(in oklab, var(--primary) 48%, black),
+    0 10px 26px color-mix(in oklab, var(--primary) 24%, transparent),
     inset 0 1px 0 #ffffff25;
 }
 .buttonPrimary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 7px 32px color-mix(in oklab, var(--primary) 42%, transparent);
+  transform: translateY(-3px);
+  box-shadow:
+    0 7px 0 color-mix(in oklab, var(--primary) 48%, black),
+    0 14px 34px color-mix(in oklab, var(--primary) 38%, transparent),
+    inset 0 1px 0 #ffffff36;
+}
+.buttonPrimary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 color-mix(in oklab, var(--primary) 48%, black);
 }
 .buttonGhost {
   border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
   color: var(--foreground);
   background: color-mix(in oklab, var(--card) 54%, transparent);
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--border) 45%, black),
+    0 9px 20px #00000022,
+    inset 0 1px 0 #ffffff0a;
 }
 .buttonGhost:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   background: color-mix(in oklab, var(--muted) 85%, transparent);
   border-color: color-mix(in oklab, var(--foreground) 32%, transparent);
+  box-shadow:
+    0 6px 0 color-mix(in oklab, var(--border) 45%, black),
+    0 13px 24px #0000002e,
+    inset 0 1px 0 #ffffff10;
+}
+
+/* ------------------------------------------------ reconciliation showcase */
+.showcaseShell {
+  position: relative;
+  transform: perspective(1200px) rotateX(1.2deg);
+  transform-origin: center top;
+  box-shadow:
+    0 8px 0 color-mix(in oklab, var(--glow) 10%, #030811),
+    0 28px 65px #00000042,
+    0 0 38px color-mix(in oklab, var(--glow) 11%, transparent),
+    inset 0 1px 0 #ffffff13;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s;
+}
+.showcaseShell:hover {
+  transform: perspective(1200px) translateY(-5px) rotateX(0.3deg);
+  box-shadow:
+    0 11px 0 color-mix(in oklab, var(--glow) 11%, #030811),
+    0 34px 72px #0000004d,
+    0 0 46px color-mix(in oklab, var(--glow) 15%, transparent),
+    inset 0 1px 0 #ffffff18;
+}
+.showcaseRow {
+  transition:
+    background 180ms,
+    box-shadow 180ms;
+}
+.showcaseRow:hover {
+  box-shadow:
+    inset 4px 0 0 color-mix(in oklab, var(--glow) 42%, transparent),
+    inset 0 1px 0 #ffffff08,
+    inset 0 -1px 0 #00000030;
+}
+.annotationCard {
+  position: relative;
+  box-shadow:
+    0 4px 0 #030811a3,
+    0 13px 26px #00000024,
+    inset 0 1px 0 #ffffff0d;
+  transform-style: preserve-3d;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s;
+}
+.annotationCard:hover {
+  transform: translateY(-5px) rotateX(2deg);
+  box-shadow:
+    0 7px 0 #030811a3,
+    0 20px 34px #00000038,
+    inset 0 1px 0 #ffffff14;
 }
 
 /* ---------------------------------------------------------------- how it works */
@@ -255,6 +392,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
+  perspective: 1100px;
 }
 /* The connecting line runs behind the three number badges. */
 .stepper::before {
@@ -281,6 +419,17 @@
   align-items: center;
   text-align: center;
 }
+.step:nth-child(1) {
+  transform: perspective(900px) rotateY(2deg);
+}
+.step:nth-child(3) {
+  transform: perspective(900px) rotateY(-2deg);
+}
+.step:nth-child(1):hover,
+.step:nth-child(2):hover,
+.step:nth-child(3):hover {
+  transform: perspective(900px) translateY(-6px) rotateX(2deg);
+}
 .stepBadge {
   display: grid;
   place-items: center;
@@ -289,14 +438,22 @@
   border-radius: 50%;
   border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent);
   background:
-    radial-gradient(circle at 50% 30%, color-mix(in oklab, var(--primary) 24%, transparent), transparent 70%),
+    radial-gradient(
+      circle at 50% 30%,
+      color-mix(in oklab, var(--primary) 24%, transparent),
+      transparent 70%
+    ),
     var(--card);
   color: var(--primary-light);
   font-size: 15px;
   font-weight: 750;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  box-shadow: 0 0 22px color-mix(in oklab, var(--primary) 22%, transparent);
+  box-shadow:
+    0 4px 0 color-mix(in oklab, var(--primary) 22%, black),
+    0 0 22px color-mix(in oklab, var(--primary) 22%, transparent),
+    inset 0 1px 0 #ffffff18;
+  transform: translateZ(24px);
 }
 .stepIcon {
   margin-top: 20px;
@@ -322,15 +479,36 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  perspective: 1200px;
 }
 .featureRow {
   display: flex;
   gap: 18px;
   padding: 22px 24px;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.2s,
+    box-shadow 0.28s;
+}
+.featureRow:hover {
+  z-index: 2;
+  border-color: color-mix(in oklab, var(--glow) 38%, transparent);
+  transform: perspective(900px) translateX(5px) rotateY(-1deg);
+  box-shadow:
+    -5px 7px 0 color-mix(in oklab, var(--glow) 7%, #030811),
+    0 18px 42px #00000038,
+    inset 0 1px 0 #ffffff10;
+}
+.featureRow:hover .iconTile {
+  transform: translateZ(26px) rotateY(4deg) translateY(-2px);
 }
 .featureRow[data-primary="true"] {
   padding: 30px 30px;
   gap: 22px;
+  transform: perspective(1000px) translateZ(8px) scale(1.012);
+}
+.featureRow[data-primary="true"]:hover {
+  transform: perspective(1000px) translateZ(14px) translateY(-4px) scale(1.016);
 }
 .featureBody {
   flex: 1;
@@ -384,10 +562,28 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  perspective: 1200px;
 }
 .window {
   overflow: hidden;
   padding: 0;
+  transition:
+    transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.32s;
+}
+.window:first-child {
+  transform: perspective(1000px) rotateY(2.4deg) rotateX(1deg);
+}
+.window:last-child {
+  transform: perspective(1000px) rotateY(-2.4deg) rotateX(1deg);
+}
+.window:hover {
+  z-index: 2;
+  transform: perspective(1000px) translateY(-5px) rotateY(0) rotateX(0);
+  box-shadow:
+    0 8px 0 color-mix(in oklab, var(--glow) 8%, #030811),
+    0 24px 54px #00000042,
+    inset 0 1px 0 #ffffff0f;
 }
 .windowBar {
   display: flex;
@@ -396,6 +592,7 @@
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
   background: color-mix(in oklab, var(--muted) 70%, transparent);
+  box-shadow: inset 0 -1px 0 #00000029;
 }
 .windowBar > span {
   width: 10px;
@@ -426,6 +623,15 @@
   font-weight: 650;
   letter-spacing: -0.3px;
   font-variant-numeric: tabular-nums;
+}
+.statGrid > div {
+  padding: 12px;
+  border: 1px solid color-mix(in oklab, var(--glow) 11%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--muted) 38%, transparent);
+  box-shadow:
+    0 3px 0 #03081166,
+    inset 0 1px 0 #ffffff08;
 }
 .rowList {
   margin: 0;
@@ -500,11 +706,23 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
+  perspective: 1000px;
 }
 .audienceCard {
   padding: 24px;
   display: flex;
   flex-direction: column;
+}
+.audienceCard:nth-child(1) {
+  transform: perspective(850px) rotateY(2deg);
+}
+.audienceCard:nth-child(3) {
+  transform: perspective(850px) rotateY(-2deg);
+}
+.audienceCard:nth-child(1):hover,
+.audienceCard:nth-child(2):hover,
+.audienceCard:nth-child(3):hover {
+  transform: perspective(850px) translateY(-6px) rotateX(2deg);
 }
 .audienceTitle {
   margin: 18px 0 0;
@@ -548,6 +766,17 @@
   font-size: 13px;
   font-weight: 550;
   color: var(--foreground);
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--background) 78%, black),
+    0 8px 16px #0000001b,
+    inset 0 1px 0 #ffffff09;
+  transition:
+    transform 180ms,
+    border-color 180ms;
+}
+.toolChips > li:hover {
+  border-color: color-mix(in oklab, var(--glow) 32%, var(--border));
+  transform: translateY(-3px);
 }
 .toolChips > li[data-muted="true"] {
   color: var(--muted-foreground);
@@ -559,10 +788,23 @@
 .priceWrap {
   margin: 48px auto 0;
   max-width: 460px;
+  perspective: 1100px;
 }
 .priceCard {
   overflow: hidden;
   padding: 0;
+  transform: perspective(1000px) rotateX(1.8deg) rotateY(-1.8deg);
+  transform-origin: center top;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.35s;
+}
+.priceCard:hover {
+  transform: perspective(1000px) translateY(-6px) rotateX(0) rotateY(0);
+  box-shadow:
+    0 10px 0 color-mix(in oklab, var(--primary) 22%, #030811),
+    0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 32px 68px -24px color-mix(in oklab, var(--primary) 50%, transparent);
 }
 .priceBanner {
   padding: 11px 16px;
@@ -572,7 +814,14 @@
   letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--primary-foreground);
-  background: linear-gradient(115deg, var(--primary-light), var(--primary-dark));
+  background: linear-gradient(
+    115deg,
+    var(--primary-light),
+    var(--primary-dark)
+  );
+  box-shadow:
+    inset 0 1px 0 #ffffff50,
+    inset 0 -2px 0 color-mix(in oklab, var(--primary) 42%, black);
 }
 .priceBody {
   padding: 30px 30px 28px;
@@ -589,6 +838,10 @@
   font-weight: 750;
   letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
+  color: var(--primary-light);
+  text-shadow:
+    0 4px 0 color-mix(in oklab, var(--primary) 38%, black),
+    0 14px 24px color-mix(in oklab, var(--primary) 17%, transparent);
 }
 .priceUnit {
   font-size: 16px;
@@ -652,14 +905,31 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  perspective: 900px;
 }
 .faqItem {
   padding: 0 22px;
   border-left: 3px solid transparent;
-  transition: border-color 0.2s;
+  box-shadow:
+    0 3px 0 #03081180,
+    0 9px 22px #0000001c,
+    inset 0 1px 0 #ffffff07;
+  transition:
+    border-color 0.2s,
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+.faqItem:hover {
+  border-color: color-mix(in oklab, var(--glow) 30%, var(--border));
+  transform: translateX(3px) translateY(-1px);
 }
 .faqItem[open] {
   border-left-color: var(--primary);
+  transform: translateX(5px) translateY(-2px);
+  box-shadow:
+    -4px 5px 0 color-mix(in oklab, var(--primary) 14%, #030811),
+    0 16px 34px #0000002e,
+    inset 0 1px 0 #ffffff0a;
 }
 .faqItem > summary {
   list-style: none;
@@ -690,6 +960,9 @@
     transform 0.2s,
     background 0.2s,
     color 0.2s;
+  box-shadow:
+    0 3px 0 #03081180,
+    inset 0 1px 0 #ffffff0d;
 }
 .faqItem[open] > summary > span {
   transform: rotate(45deg);
@@ -712,12 +985,41 @@
   padding: 0 var(--page-gutter) clamp(72px, 9vw, 120px);
 }
 .ctaPanel {
+  position: relative;
   padding: clamp(44px, 6vw, 72px) clamp(24px, 5vw, 64px);
   text-align: center;
   background:
-    radial-gradient(ellipse at 50% 120%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 55%),
-    radial-gradient(ellipse at 0% 0%, color-mix(in oklab, var(--glow) 12%, transparent), transparent 45%),
-    linear-gradient(140deg, color-mix(in oklab, var(--card) 94%, transparent), color-mix(in oklab, var(--background) 92%, transparent));
+    radial-gradient(
+      ellipse at 50% 120%,
+      color-mix(in oklab, var(--primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 0% 0%,
+      color-mix(in oklab, var(--glow) 12%, transparent),
+      transparent 45%
+    ),
+    linear-gradient(
+      140deg,
+      color-mix(in oklab, var(--card) 94%, transparent),
+      color-mix(in oklab, var(--background) 92%, transparent)
+    );
+  box-shadow:
+    0 8px 0 color-mix(in oklab, var(--primary) 12%, #030811),
+    0 0 0 1px color-mix(in oklab, var(--glow) 8%, transparent),
+    0 28px 65px #0000003b,
+    0 0 44px color-mix(in oklab, var(--primary) 9%, transparent),
+    inset 0 1px 0 #ffffff12;
+  transform: perspective(1200px) rotateX(1.2deg);
+  transform-origin: center top;
+}
+.ctaPanel::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border: 1px solid color-mix(in oklab, var(--glow) 10%, transparent);
+  border-radius: 11px;
+  pointer-events: none;
 }
 .ctaTitle {
   margin: 0 auto;
@@ -762,6 +1064,7 @@
     flex-direction: row;
     gap: 18px;
     padding: 22px;
+    transform: none !important;
   }
   .stepBadge {
     flex-shrink: 0;
@@ -774,6 +1077,9 @@
   }
   .proofGrid {
     grid-template-columns: 1fr;
+  }
+  .audienceCard {
+    transform: none !important;
   }
 }
 @media (max-width: 760px) {
@@ -788,6 +1094,7 @@
     flex-direction: column;
     gap: 14px;
     padding: 20px;
+    transform: none;
   }
   .flagGrid {
     grid-template-columns: 1fr;
@@ -807,6 +1114,17 @@
   .ctaActions > a {
     width: 100%;
   }
+  .showcaseShell,
+  .showcaseShell:hover,
+  .window,
+  .window:first-child,
+  .window:last-child,
+  .window:hover,
+  .priceCard,
+  .priceCard:hover,
+  .ctaPanel {
+    transform: none;
+  }
 }
 @media (max-width: 470px) {
   .statGrid {
@@ -820,12 +1138,55 @@
   .buttonPrimary,
   .buttonGhost,
   .faqItem,
-  .faqItem > summary > span {
+  .faqItem > summary > span,
+  .showcaseShell,
+  .annotationCard,
+  .featureRow,
+  .window,
+  .audienceCard,
+  .toolChips > li,
+  .priceCard,
+  .ctaPanel,
+  .iconTile {
     transition: none;
   }
   .panelLift:hover,
   .buttonPrimary:hover,
-  .buttonGhost:hover {
-    transform: none;
+  .buttonPrimary:active,
+  .buttonGhost:hover,
+  .showcaseShell,
+  .showcaseShell:hover,
+  .annotationCard:hover,
+  .step,
+  .step:nth-child(1),
+  .step:nth-child(2),
+  .step:nth-child(3),
+  .step:nth-child(1):hover,
+  .step:nth-child(2):hover,
+  .step:nth-child(3):hover,
+  .featureRow,
+  .featureRow:hover,
+  .featureRow[data-primary="true"],
+  .featureRow[data-primary="true"]:hover,
+  .window,
+  .window:first-child,
+  .window:last-child,
+  .window:hover,
+  .audienceCard,
+  .audienceCard:nth-child(1),
+  .audienceCard:nth-child(2),
+  .audienceCard:nth-child(3),
+  .audienceCard:nth-child(1):hover,
+  .audienceCard:nth-child(2):hover,
+  .audienceCard:nth-child(3):hover,
+  .toolChips > li:hover,
+  .priceCard,
+  .priceCard:hover,
+  .faqItem:hover,
+  .faqItem[open],
+  .ctaPanel,
+  .iconTile,
+  .featureRow:hover .iconTile {
+    transform: none !important;
   }
 }

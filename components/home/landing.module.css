@@ -165,18 +165,13 @@
     0 18px 36px #02060d4d;
 }
 .title > span {
-  color: var(--primary);
-  background: linear-gradient(
-    100deg,
-    var(--primary-light),
-    var(--primary-dark)
-  );
+  color: #ff922f;
+  background: linear-gradient(100deg, #ffb15f 0%, #ff922f 48%, #ff7a1a 100%);
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 5px 0 color-mix(in oklab, var(--primary) 38%, black))
-    drop-shadow(
-      0 14px 24px color-mix(in oklab, var(--primary) 15%, transparent)
-    );
+  -webkit-text-stroke: 0.55px #ffc17a;
+  filter: drop-shadow(0 2px 0 #7b2d09) drop-shadow(0 0 10px #06101bd9)
+    drop-shadow(0 10px 20px #00000070);
 }
 .description {
   max-width: 580px;

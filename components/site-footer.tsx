@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { CheckCircle2, HardHat } from "lucide-react"
 
+import styles from "@/components/home/footer.module.css"
+
 // These three used to sit under the hero CTAs. They're reassurance, not a
 // reason to keep reading, so they were crowding the one thing the hero has to
 // do. They still need to be somewhere findable — this is that somewhere.
@@ -35,32 +37,51 @@ const groups = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className={`${styles.footer} border-t border-border bg-background`}>
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
-        <ul className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-b border-border pb-10 text-sm text-muted-foreground">
+        <ul
+          className={`${styles.trustStrip} mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-b border-border pb-10 text-sm text-muted-foreground`}
+        >
           {trustPoints.map((point) => (
-            <li key={point} className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+            <li
+              key={point}
+              className={`${styles.trustPoint} inline-flex items-center gap-1.5`}
+            >
+              <CheckCircle2
+                className="h-4 w-4 shrink-0 text-primary"
+                aria-hidden="true"
+              />
               {point}
             </li>
           ))}
         </ul>
 
-        <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div
+          className={`${styles.footerGrid} grid gap-10 lg:grid-cols-[1.5fr_1fr_1fr_1fr]`}
+        >
           <div>
-            <Link href="/" className="flex items-center gap-2" aria-label="Constimator home">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Link
+              href="/"
+              className={`${styles.brand} flex items-center gap-2`}
+              aria-label="Constimator home"
+            >
+              <span
+                className={`${styles.brandMark} flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground`}
+              >
                 <HardHat className="h-5 w-5" aria-hidden="true" />
               </span>
-              <span className="font-display text-xl font-bold tracking-tight">Constimator</span>
+              <span className="font-display text-xl font-bold tracking-tight">
+                Constimator
+              </span>
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Bid-form reconciliation and document intelligence for public works contractors.
+              Bid-form reconciliation and document intelligence for public works
+              contractors.
             </p>
           </div>
 
           {groups.map((group) => (
-            <div key={group.heading}>
+            <div key={group.heading} className={styles.linkGroup}>
               <h3 className="text-sm font-semibold">{group.heading}</h3>
               <ul className="mt-4 flex flex-col gap-3">
                 {group.links.map((link) => (
@@ -78,16 +99,24 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row">
+        <div
+          className={`${styles.footerBottom} mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 sm:flex-row`}
+        >
           <p className="text-sm text-muted-foreground">
-            Early access. Built by a former public works contractor.
-            {" "}© {new Date().getFullYear()} Constimator.
+            Early access. Built by a former public works contractor. ©{" "}
+            {new Date().getFullYear()} Constimator.
           </p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <Link href="/terms" className="transition-colors hover:text-foreground">
+            <Link
+              href="/terms"
+              className="transition-colors hover:text-foreground"
+            >
               Terms of Service
             </Link>
-            <Link href="/privacy" className="transition-colors hover:text-foreground">
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-foreground"
+            >
               Privacy Policy
             </Link>
           </div>

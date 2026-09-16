@@ -106,7 +106,11 @@ export function ReconciliationShowcase() {
       className={sections.section}
       aria-labelledby="reconciliation-title"
     >
-      <div className={sections.atmosphere} data-tone="glow" aria-hidden="true" />
+      <div
+        className={sections.atmosphere}
+        data-tone="glow"
+        aria-hidden="true"
+      />
       <div className={sections.inner}>
         <SectionHeading
           eyebrow="Bid form reconciliation"
@@ -120,7 +124,12 @@ export function ReconciliationShowcase() {
           lead="Every official bid item, against every line of your estimate. Here is the sample project, exactly as Constimator reports it."
         />
 
-        <div className="mt-14 overflow-hidden rounded-2xl bg-card glow-panel">
+        <div
+          className={cn(
+            "mt-14 overflow-hidden rounded-2xl bg-card glow-panel",
+            sections.showcaseShell
+          )}
+        >
           <div className="flex items-center gap-1.5 border-b border-border bg-muted px-4 py-3 sm:px-6">
             <span
               className="h-3 w-3 rounded-full bg-border"
@@ -174,6 +183,7 @@ export function ReconciliationShowcase() {
                     key={row.id}
                     className={cn(
                       "border-b border-border last:border-0",
+                      sections.showcaseRow,
                       rowHighlight[row.id]
                     )}
                   >
@@ -231,6 +241,7 @@ export function ReconciliationShowcase() {
                   key={annotation.rowId}
                   className={cn(
                     "flex flex-col rounded-lg border border-l-4 border-border bg-card p-5",
+                    sections.annotationCard,
                     tone.border
                   )}
                 >

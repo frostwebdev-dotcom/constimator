@@ -12,6 +12,20 @@
   border-top: 1px solid var(--border);
   background: var(--background);
   overflow: clip;
+  perspective: 1300px;
+}
+.section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0.1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#ffffff12 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff12 1px, transparent 1px);
+  background-size: 62px 62px;
+  mask-image: radial-gradient(ellipse at 76% 46%, #000, transparent 68%);
 }
 .atmosphere {
   position: absolute;
@@ -52,6 +66,11 @@
   letter-spacing: 1px;
   font-weight: 600;
   text-transform: uppercase;
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--destructive) 16%, black),
+    0 8px 18px #0000001c,
+    inset 0 1px 0 #ffffff10;
+  transform: perspective(280px) rotateX(3deg);
 }
 .eyebrow > span {
   width: 5px;
@@ -86,6 +105,7 @@
   display: grid;
   gap: 10px;
   max-width: 560px;
+  perspective: 700px;
 }
 .modes > li {
   display: flex;
@@ -98,6 +118,20 @@
   font-size: 15px;
   font-weight: 500;
   color: var(--foreground);
+  box-shadow:
+    0 3px 0 #03081173,
+    0 9px 18px #0000001a,
+    inset 0 1px 0 #ffffff08;
+  transform-style: preserve-3d;
+  transition:
+    transform 220ms,
+    border-color 180ms,
+    background 180ms;
+}
+.modes > li:hover {
+  border-color: color-mix(in oklab, var(--warning) 30%, var(--border));
+  background: color-mix(in oklab, var(--card) 90%, transparent);
+  transform: translateX(5px) translateY(-2px) rotateY(-1deg);
 }
 .modes > li > span {
   display: grid;
@@ -109,6 +143,10 @@
   border: 1px solid color-mix(in oklab, var(--warning) 25%, transparent);
   background: color-mix(in oklab, var(--warning) 12%, transparent);
   color: var(--warning);
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--warning) 14%, black),
+    inset 0 1px 0 #ffffff13;
+  transform: translateZ(16px);
 }
 .after {
   margin: 22px 0 0;
@@ -133,9 +171,31 @@
     color-mix(in oklab, var(--background) 92%, transparent)
   );
   box-shadow:
+    7px 9px 0 color-mix(in oklab, var(--destructive) 8%, #030811),
     0 0 0 1px color-mix(in oklab, var(--destructive) 8%, transparent),
     0 0 32px color-mix(in oklab, var(--destructive) 12%, transparent),
     0 24px 60px -30px color-mix(in oklab, var(--destructive) 45%, transparent);
+  transform: perspective(950px) rotateY(-4deg) rotateX(1.5deg);
+  transform-style: preserve-3d;
+  transition:
+    transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.34s;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 1px solid color-mix(in oklab, var(--destructive) 9%, transparent);
+  border-radius: 11px;
+  pointer-events: none;
+}
+.card:hover {
+  transform: perspective(950px) translateY(-6px) rotateY(-1deg) rotateX(0.5deg);
+  box-shadow:
+    5px 7px 0 color-mix(in oklab, var(--destructive) 10%, #030811),
+    0 0 0 1px color-mix(in oklab, var(--destructive) 10%, transparent),
+    0 0 38px color-mix(in oklab, var(--destructive) 15%, transparent),
+    0 30px 68px -26px color-mix(in oklab, var(--destructive) 48%, transparent);
 }
 .chip {
   display: inline-flex;
@@ -167,6 +227,13 @@
   );
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(
+      0 4px 0 color-mix(in oklab, var(--destructive) 30%, black)
+    )
+    drop-shadow(
+      0 12px 22px color-mix(in oklab, var(--destructive) 16%, transparent)
+    );
+  transform: translateZ(22px);
 }
 .detail {
   margin: 14px 0 0;
@@ -189,7 +256,11 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--destructive), color-mix(in oklab, var(--destructive) 70%, var(--primary)));
+  background: linear-gradient(
+    90deg,
+    var(--destructive),
+    color-mix(in oklab, var(--destructive) 70%, var(--primary))
+  );
   box-shadow: 0 0 12px color-mix(in oklab, var(--destructive) 50%, transparent);
 }
 .meterLabel {
@@ -242,6 +313,10 @@
     transform 0.2s,
     background 0.2s,
     border-color 0.2s;
+  box-shadow:
+    0 4px 0 color-mix(in oklab, var(--primary) 19%, black),
+    0 12px 24px #00000020,
+    inset 0 1px 0 #ffffff0d;
 }
 .bridge > a > span {
   display: grid;
@@ -251,11 +326,18 @@
   border-radius: 50%;
   background: var(--primary);
   color: var(--primary-foreground);
+  box-shadow:
+    0 3px 0 color-mix(in oklab, var(--primary) 42%, black),
+    inset 0 1px 0 #ffffff3d;
 }
 .bridge > a:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
   background: color-mix(in oklab, var(--primary) 15%, transparent);
   border-color: color-mix(in oklab, var(--primary) 50%, transparent);
+  box-shadow:
+    0 7px 0 color-mix(in oklab, var(--primary) 19%, black),
+    0 17px 30px #0000002e,
+    inset 0 1px 0 #ffffff16;
 }
 
 @media (max-width: 1100px) {
@@ -277,6 +359,7 @@
   }
   .card {
     max-width: 560px;
+    transform: none;
   }
 }
 @media (max-width: 760px) {
@@ -292,11 +375,25 @@
   }
   .card {
     padding: 22px 20px 20px;
+    transform: none;
   }
   .bridge > a {
     font-size: 15px;
     padding: 14px 16px 14px 20px;
     text-align: left;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow,
+  .modes > li,
+  .modes > li:hover,
+  .card,
+  .card:hover,
+  .amount,
+  .bridge > a,
+  .bridge > a:hover {
+    transform: none;
+    transition: none;
   }
 }
 @media (max-width: 470px) {
