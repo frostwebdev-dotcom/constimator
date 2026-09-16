@@ -6,6 +6,8 @@ import {
   statusColorClasses,
 } from "@/lib/reconciliation-data"
 import { cn } from "@/lib/utils"
+import { SectionHeading } from "@/components/home/section-heading"
+import sections from "@/components/home/sections.module.css"
 
 // The visual centerpiece of the homepage: the reconciliation table, blown up
 // and annotated so a contractor gets the point in one glance.
@@ -101,21 +103,22 @@ export function ReconciliationShowcase() {
   return (
     <section
       id="reconciliation"
-      className="scroll-mt-16 border-y border-border bg-muted/40"
+      className={sections.section}
+      aria-labelledby="reconciliation-title"
     >
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold tracking-widest text-primary uppercase">
-            Bid form reconciliation
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            See every mismatch before you submit
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-pretty text-muted-foreground">
-            Every official bid item, against every line of your estimate. Here
-            is the sample project, exactly as Constimator reports it.
-          </p>
-        </div>
+      <div className={sections.atmosphere} data-tone="glow" aria-hidden="true" />
+      <div className={sections.inner}>
+        <SectionHeading
+          eyebrow="Bid form reconciliation"
+          tone="glow"
+          titleId="reconciliation-title"
+          title={
+            <>
+              See every mismatch <em>before you submit</em>
+            </>
+          }
+          lead="Every official bid item, against every line of your estimate. Here is the sample project, exactly as Constimator reports it."
+        />
 
         <div className="mt-14 overflow-hidden rounded-2xl bg-card glow-panel">
           <div className="flex items-center gap-1.5 border-b border-border bg-muted px-4 py-3 sm:px-6">

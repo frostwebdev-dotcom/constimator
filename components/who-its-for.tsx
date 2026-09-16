@@ -1,67 +1,83 @@
 import { Building2, Landmark, TrafficCone } from "lucide-react"
 
+import { SectionHeading } from "@/components/home/section-heading"
+import styles from "@/components/home/sections.module.css"
+
 const projectTypes = [
   {
     icon: TrafficCone,
+    tone: "primary",
     title: "State DOT projects",
     description:
       "Caltrans and equivalent state work — standard spec sections, addenda, and the official bid form they publish with them.",
   },
   {
     icon: Building2,
+    tone: "glow",
     title: "County and municipal work",
     description:
       "County road jobs, city street and utility work, and the smaller bid forms that still disqualify you for a missing line.",
   },
   {
     icon: Landmark,
+    tone: "review",
     title: "Federal-aid infrastructure",
     description:
       "Federally funded projects with the extra requirements — prevailing wage, DBE goals, and the paperwork that rides along.",
   },
-]
+] as const
+
+// Only the tools the copy already names. The dashed last chip is the copy's
+// own "or whatever you already estimate in", not a fourth integration.
+const tools = ["HeavyBid", "HCSS", "Excel"] as const
 
 export function WhoItsFor() {
   return (
-    <section id="who-its-for" className="scroll-mt-16 border-t border-border">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">Who it&apos;s for</p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Built for public works contractors
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-muted-foreground text-pretty">
-            Constimator is designed specifically for contractors bidding on:
+    <section
+      id="who-its-for"
+      className={styles.section}
+      aria-labelledby="who-its-for-title"
+    >
+      <div className={styles.atmosphere} data-tone="quiet" aria-hidden="true" />
+      <div className={styles.inner}>
+        <SectionHeading
+          eyebrow="Who it's for"
+          titleId="who-its-for-title"
+          title={
+            <>
+              Built for <em>public works</em> contractors
+            </>
+          }
+          lead="Constimator is designed specifically for contractors bidding on:"
+        />
+
+        <div className={styles.audienceGrid}>
+          {projectTypes.map(({ icon: Icon, tone, title, description }) => (
+            <article
+              key={title}
+              className={`${styles.panel} ${styles.panelLift} ${styles.audienceCard}`}
+            >
+              <span className={styles.iconTile} data-tone={tone} aria-hidden="true">
+                <Icon size={20} strokeWidth={1.8} />
+              </span>
+              <h3 className={styles.audienceTitle}>{title}</h3>
+              <p className={styles.audienceText}>{description}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className={styles.tools}>
+          <p>
+            Works alongside whatever you already estimate in. No rip-and-replace,
+            no learning curve during bid season.
           </p>
+          <ul className={styles.toolChips} aria-label="Works alongside">
+            {tools.map((tool) => (
+              <li key={tool}>{tool}</li>
+            ))}
+            <li data-muted="true">…or your own spreadsheet</li>
+          </ul>
         </div>
-
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {projectTypes.map((type) => {
-            const Icon = type.icon
-
-            return (
-              <div
-                key={type.title}
-                className="flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm"
-              >
-                <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <h3 className="mt-5 font-display text-lg font-semibold text-balance">
-                  {type.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {type.description}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-
-        <p className="mx-auto mt-10 max-w-2xl text-center text-lg leading-relaxed text-muted-foreground text-pretty">
-          Works alongside HeavyBid, HCSS, Excel, or whatever you already estimate in. No
-          rip-and-replace, no learning curve during bid season.
-        </p>
       </div>
     </section>
   )

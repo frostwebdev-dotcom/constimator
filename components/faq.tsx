@@ -1,5 +1,8 @@
 import { Plus } from "lucide-react"
 
+import { SectionHeading } from "@/components/home/section-heading"
+import styles from "@/components/home/sections.module.css"
+
 // Native <details>/<summary> rather than a JS accordion: this stays a server
 // component with zero client bundle, and the answers are still in the DOM for
 // search engines and for anyone who hits Ctrl-F looking for "HeavyBid".
@@ -52,31 +55,29 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section id="faq" className="scroll-mt-16 border-t border-border bg-muted/40">
-      <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">FAQ</p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Questions contractors ask
-          </h2>
-        </div>
+    <section id="faq" className={styles.section} aria-labelledby="faq-title">
+      <div className={styles.atmosphere} data-tone="quiet" aria-hidden="true" />
+      <div className={styles.innerNarrow}>
+        <SectionHeading
+          eyebrow="FAQ"
+          titleId="faq-title"
+          title={
+            <>
+              Questions <em>contractors</em> ask
+            </>
+          }
+        />
 
-        <div className="mt-12 flex flex-col gap-3">
+        <div className={styles.faqList}>
           {faqs.map((faq) => (
-            <details
-              key={faq.question}
-              className="group rounded-xl border border-border bg-card px-6 shadow-sm"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-5 text-left font-display text-base font-semibold text-foreground marker:content-none">
+            <details key={faq.question} className={`${styles.panel} ${styles.faqItem}`}>
+              <summary>
                 {faq.question}
-                <Plus
-                  className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-45"
-                  aria-hidden="true"
-                />
+                <span aria-hidden="true">
+                  <Plus size={15} strokeWidth={2.2} />
+                </span>
               </summary>
-              <p className="border-t border-border py-5 text-sm leading-relaxed text-muted-foreground">
-                {faq.answer}
-              </p>
+              <p className={styles.faqAnswer}>{faq.answer}</p>
             </details>
           ))}
         </div>

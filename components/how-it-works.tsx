@@ -1,3 +1,8 @@
+import { Calculator, ClipboardList, Scale } from "lucide-react"
+
+import { SectionHeading } from "@/components/home/section-heading"
+import styles from "@/components/home/sections.module.css"
+
 // Step 01 is deliberately the manual path, because that is the path
 // docs/PILOT_CHECKLIST.md step 5 actually walks contractors through: bid form
 // line items are entered by hand, there is no upload-and-auto-fill yet. Promise
@@ -5,58 +10,70 @@
 const steps = [
   {
     number: "01",
+    icon: ClipboardList,
     title: "Enter the official bid form",
     description:
       "Item by item — description, unit, official quantity, spec section. Upload the plans, specs, and addenda alongside it so the whole set lives with the project.",
   },
   {
     number: "02",
+    icon: Calculator,
     title: "Build your estimate your way",
     description:
       "Keep estimating the way you already do — your quantities, your unit prices, your labor and equipment rates. Constimator never overwrites your numbers.",
   },
   {
     number: "03",
+    icon: Scale,
     title: "Reconcile before you submit",
     description:
       "Constimator checks your estimate against the official bid form and flags anything missing or off — so you fix it before bid day, not after.",
   },
-]
+] as const
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-16 bg-secondary text-secondary-foreground">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">How it works</p>
-          <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl">
-            Three steps to a bid you&apos;ve double-checked
-          </h2>
-        </div>
+    <section
+      id="how-it-works"
+      className={styles.section}
+      aria-labelledby="how-it-works-title"
+    >
+      <div className={styles.atmosphere} data-tone="quiet" aria-hidden="true" />
+      <div className={styles.inner}>
+        <SectionHeading
+          eyebrow="How it works"
+          titleId="how-it-works-title"
+          title={
+            <>
+              Three steps to a bid you&apos;ve <em>double-checked</em>
+            </>
+          }
+        />
 
-        {/* Solid theme tokens only — no alpha-composited colours here.
-            Tailwind emits `background-color: var(--foreground)` as the
-            non-color-mix fallback for `bg-foreground/5`, so on a browser
-            without color-mix support these cards rendered as solid
-            near-black slabs with near-black text on top: the step titles and
-            descriptions were invisible. bg-card/text-card-foreground carry no
-            alpha and resolve correctly everywhere, in both themes. */}
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
-          {steps.map((step) => (
-            <div
-              key={step.number}
-              className="relative flex flex-col rounded-xl border border-border bg-card p-8 text-card-foreground shadow-sm"
+        <ol className={styles.stepper}>
+          {steps.map(({ number, icon: Icon, title, description }) => (
+            <li
+              key={number}
+              className={`${styles.panel} ${styles.panelLift} ${styles.step}`}
             >
-              <span className="font-display text-4xl font-bold leading-none text-primary">
-                {step.number}
+              <span className={styles.stepBadge} aria-hidden="true">
+                {number}
               </span>
-              <h3 className="mt-5 font-display text-xl font-semibold text-balance">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {step.description}
-              </p>
-            </div>
+              <span
+                className={`${styles.iconTile} ${styles.stepIcon}`}
+                data-tone="primary"
+                aria-hidden="true"
+              >
+                <Icon size={21} strokeWidth={1.8} />
+              </span>
+              <h3 className={styles.stepTitle}>
+                <span className="sr-only">Step {number}: </span>
+                {title}
+              </h3>
+              <p className={styles.stepText}>{description}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )

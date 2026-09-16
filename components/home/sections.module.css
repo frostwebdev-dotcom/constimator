@@ -1,0 +1,831 @@
+/*
+ * Shared section language for the marketing page, below the hero. One
+ * stylesheet so Showcase, How it works, Features, Proof, Who it's for,
+ * Pricing, FAQ and the CTA read as one design and change together.
+ *
+ * Tokens only — same rule as landing.module.css and problem.module.css. The
+ * banded backgrounds the sections used to alternate (bg-muted/40,
+ * bg-secondary) are gone: with the shared navy palette the lighter band read
+ * as a different page. Rhythm now comes from a hairline top border and a
+ * quiet corner glow per section instead.
+ */
+
+/* ---------------------------------------------------------------- section */
+.section {
+  position: relative;
+  isolation: isolate;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+  overflow: clip;
+}
+.atmosphere {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+}
+.atmosphere[data-tone="glow"] {
+  background:
+    radial-gradient(ellipse at 88% 8%, color-mix(in oklab, var(--glow) 11%, transparent), transparent 40%),
+    radial-gradient(ellipse at 6% 92%, color-mix(in oklab, var(--primary) 6%, transparent), transparent 36%);
+}
+.atmosphere[data-tone="primary"] {
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 44%),
+    radial-gradient(ellipse at 90% 100%, color-mix(in oklab, var(--glow) 8%, transparent), transparent 36%);
+}
+.atmosphere[data-tone="quiet"] {
+  background: radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--glow) 7%, transparent), transparent 42%);
+}
+.inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(72px, 9vw, 120px) var(--page-gutter);
+}
+.innerNarrow {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: clamp(72px, 9vw, 120px) var(--page-gutter);
+}
+
+/* ---------------------------------------------------------------- heading */
+.heading {
+  max-width: 720px;
+}
+.headingCenter {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+.headingCenter .eyebrow {
+  margin-inline: auto;
+}
+.eyebrow {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 13px;
+  border-radius: 30px;
+  border: 1px solid color-mix(in oklab, var(--primary) 22%, transparent);
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: color-mix(in oklab, var(--primary) 70%, white);
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.eyebrow > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 9px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+.eyebrow[data-tone="glow"] {
+  border-color: color-mix(in oklab, var(--glow) 30%, transparent);
+  background: color-mix(in oklab, var(--glow) 10%, transparent);
+  color: color-mix(in oklab, var(--glow) 60%, white);
+}
+.eyebrow[data-tone="glow"] > span {
+  background: var(--glow);
+  box-shadow: 0 0 9px color-mix(in oklab, var(--glow) 55%, transparent);
+}
+.title {
+  margin: 20px 0 0;
+  font-size: clamp(32px, 3.4vw, 48px);
+  line-height: 1.08;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.title > em {
+  font-style: normal;
+  color: var(--primary);
+}
+.lead {
+  margin: 18px 0 0;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- panels */
+.panel {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--glow) 22%, var(--border));
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--card) 94%, transparent),
+    color-mix(in oklab, var(--background) 90%, transparent)
+  );
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--glow) 6%, transparent),
+    0 0 24px color-mix(in oklab, var(--glow) 8%, transparent),
+    0 18px 48px -28px color-mix(in oklab, var(--glow) 40%, transparent);
+  transition:
+    transform 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.panelLift:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--glow) 42%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--glow) 10%, transparent),
+    0 0 32px color-mix(in oklab, var(--glow) 14%, transparent),
+    0 24px 56px -28px color-mix(in oklab, var(--glow) 55%, transparent);
+}
+/* The one card per page that is the point — orange edge, orange glow. */
+.panelPrimary {
+  border-color: color-mix(in oklab, var(--primary) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--primary) 14%, transparent),
+    0 0 36px color-mix(in oklab, var(--primary) 16%, transparent),
+    0 24px 60px -28px color-mix(in oklab, var(--primary) 55%, transparent);
+}
+
+/* Square icon tile with a tinted wash. */
+.iconTile {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 80%, transparent);
+  color: var(--foreground);
+}
+.iconTile[data-tone="primary"] {
+  border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+  background: color-mix(in oklab, var(--primary) 14%, transparent);
+  color: var(--primary-light);
+}
+.iconTile[data-tone="primarySolid"] {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+  color: var(--primary-foreground);
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--primary) 30%, transparent);
+}
+.iconTile[data-tone="glow"] {
+  border-color: color-mix(in oklab, var(--glow) 30%, transparent);
+  background: color-mix(in oklab, var(--glow) 14%, transparent);
+  color: color-mix(in oklab, var(--glow) 55%, white);
+}
+.iconTile[data-tone="review"] {
+  border-color: color-mix(in oklab, var(--review) 30%, transparent);
+  background: color-mix(in oklab, var(--review) 14%, transparent);
+  color: color-mix(in oklab, var(--review) 55%, white);
+}
+.iconTile[data-tone="success"] {
+  border-color: color-mix(in oklab, var(--success) 28%, transparent);
+  background: color-mix(in oklab, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+/* Small uppercase label chip (e.g. "Early access", "The differentiator"). */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 80%, transparent);
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.chip[data-tone="primary"] {
+  border-color: color-mix(in oklab, var(--primary) 35%, transparent);
+  background: color-mix(in oklab, var(--primary) 14%, transparent);
+  color: color-mix(in oklab, var(--primary) 78%, white);
+}
+
+/* Buttons that match the hero's pair. */
+.buttonPrimary,
+.buttonGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 9px;
+  padding: 15px 22px;
+  font-size: 14.5px;
+  font-weight: 650;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+}
+.buttonPrimary {
+  color: var(--primary-foreground);
+  border: 1px solid color-mix(in oklab, var(--primary-light) 44%, transparent);
+  background: linear-gradient(115deg, var(--primary-light), var(--primary-dark));
+  box-shadow:
+    0 5px 24px color-mix(in oklab, var(--primary) 24%, transparent),
+    inset 0 1px 0 #ffffff25;
+}
+.buttonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 32px color-mix(in oklab, var(--primary) 42%, transparent);
+}
+.buttonGhost {
+  border: 1px solid color-mix(in oklab, var(--foreground) 20%, transparent);
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--card) 54%, transparent);
+}
+.buttonGhost:hover {
+  transform: translateY(-2px);
+  background: color-mix(in oklab, var(--muted) 85%, transparent);
+  border-color: color-mix(in oklab, var(--foreground) 32%, transparent);
+}
+
+/* ---------------------------------------------------------------- how it works */
+.stepper {
+  position: relative;
+  margin-top: 52px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+/* The connecting line runs behind the three number badges. */
+.stepper::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 52px;
+  left: calc(16.67% + 22px);
+  right: calc(16.67% + 22px);
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--primary) 20%, transparent),
+    color-mix(in oklab, var(--primary) 60%, transparent),
+    color-mix(in oklab, var(--primary) 20%, transparent)
+  );
+}
+.step {
+  position: relative;
+  z-index: 1;
+  padding: 28px 26px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.stepBadge {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent);
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in oklab, var(--primary) 24%, transparent), transparent 70%),
+    var(--card);
+  color: var(--primary-light);
+  font-size: 15px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 22px color-mix(in oklab, var(--primary) 22%, transparent);
+}
+.stepIcon {
+  margin-top: 20px;
+}
+.stepTitle {
+  margin: 18px 0 0;
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.25px;
+  text-wrap: balance;
+}
+.stepText {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- features */
+.featureList {
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.featureRow {
+  display: flex;
+  gap: 18px;
+  padding: 22px 24px;
+}
+.featureRow[data-primary="true"] {
+  padding: 30px 30px;
+  gap: 22px;
+}
+.featureBody {
+  flex: 1;
+  min-width: 0;
+}
+.featureTitleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.featureTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+}
+.featureRow[data-primary="true"] .featureTitle {
+  font-size: 21px;
+}
+.featureText {
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+.flagGrid {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+}
+.flagGrid > li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.flagGrid > li > svg {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+/* ---------------------------------------------------------------- proof */
+.proofGrid {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.window {
+  overflow: hidden;
+  padding: 0;
+}
+.windowBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 70%, transparent);
+}
+.windowBar > span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+.windowBar > small {
+  margin-left: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.statGrid {
+  margin: 0;
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.statGrid dt {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.statGrid dd {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+}
+.rowList {
+  margin: 0;
+  padding: 10px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rowList > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.rowList > li:hover {
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.status[data-tone="success"] {
+  background: color-mix(in oklab, var(--success) 14%, transparent);
+  color: var(--success);
+}
+.status[data-tone="warning"] {
+  background: color-mix(in oklab, var(--warning) 16%, transparent);
+  color: var(--warning);
+}
+.status[data-tone="danger"] {
+  background: color-mix(in oklab, var(--destructive) 14%, transparent);
+  color: var(--destructive);
+}
+.proofFooter {
+  margin: 32px auto 0;
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  text-align: center;
+}
+.note {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  text-align: left;
+}
+.note > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--primary);
+}
+
+/* ---------------------------------------------------------------- who it's for */
+.audienceGrid {
+  margin-top: 48px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.audienceCard {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+.audienceTitle {
+  margin: 18px 0 0;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+}
+.audienceText {
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+.tools {
+  margin: 40px auto 0;
+  max-width: 720px;
+  text-align: center;
+}
+.tools > p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+.toolChips {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.toolChips > li {
+  padding: 7px 13px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--foreground);
+}
+.toolChips > li[data-muted="true"] {
+  color: var(--muted-foreground);
+  font-weight: 500;
+  border-style: dashed;
+}
+
+/* ---------------------------------------------------------------- pricing */
+.priceWrap {
+  margin: 48px auto 0;
+  max-width: 460px;
+}
+.priceCard {
+  overflow: hidden;
+  padding: 0;
+}
+.priceBanner {
+  padding: 11px 16px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--primary-foreground);
+  background: linear-gradient(115deg, var(--primary-light), var(--primary-dark));
+}
+.priceBody {
+  padding: 30px 30px 28px;
+}
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+.priceAmount {
+  font-size: 64px;
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+.priceUnit {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.priceCompare {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--muted-foreground);
+}
+.priceCompare > s {
+  color: color-mix(in oklab, var(--muted-foreground) 70%, var(--background));
+}
+.priceList {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.priceList > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 14.5px;
+}
+.priceList > li > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--primary);
+}
+.priceCta {
+  margin-top: 26px;
+  width: 100%;
+}
+.priceSpots {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 550;
+  color: color-mix(in oklab, var(--primary) 70%, white);
+}
+.priceNote {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+.priceNote + .priceNote {
+  margin-top: 10px;
+}
+
+/* ---------------------------------------------------------------- faq */
+.faqList {
+  margin-top: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.faqItem {
+  padding: 0 22px;
+  border-left: 3px solid transparent;
+  transition: border-color 0.2s;
+}
+.faqItem[open] {
+  border-left-color: var(--primary);
+}
+.faqItem > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  font-size: 15.5px;
+  font-weight: 620;
+  color: var(--foreground);
+}
+.faqItem > summary::-webkit-details-marker {
+  display: none;
+}
+.faqItem > summary > span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 80%, transparent);
+  color: var(--muted-foreground);
+  transition:
+    transform 0.2s,
+    background 0.2s,
+    color 0.2s;
+}
+.faqItem[open] > summary > span {
+  transform: rotate(45deg);
+  background: color-mix(in oklab, var(--primary) 16%, transparent);
+  color: var(--primary-light);
+}
+.faqAnswer {
+  margin: 0;
+  padding: 0 0 20px;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--muted-foreground);
+  text-wrap: pretty;
+}
+
+/* ---------------------------------------------------------------- cta */
+.ctaWrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--page-gutter) clamp(72px, 9vw, 120px);
+}
+.ctaPanel {
+  padding: clamp(44px, 6vw, 72px) clamp(24px, 5vw, 64px);
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 120%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 55%),
+    radial-gradient(ellipse at 0% 0%, color-mix(in oklab, var(--glow) 12%, transparent), transparent 45%),
+    linear-gradient(140deg, color-mix(in oklab, var(--card) 94%, transparent), color-mix(in oklab, var(--background) 92%, transparent));
+}
+.ctaTitle {
+  margin: 0 auto;
+  max-width: 640px;
+  font-size: clamp(30px, 3.4vw, 46px);
+  line-height: 1.08;
+  font-weight: 750;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.ctaLead {
+  margin: 16px auto 0;
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-soft);
+  text-wrap: pretty;
+}
+.ctaActions {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ---------------------------------------------------------------- responsive */
+@media (max-width: 1100px) {
+  .stepper::before {
+    display: none;
+  }
+}
+@media (max-width: 980px) {
+  .stepper,
+  .audienceGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .step {
+    align-items: flex-start;
+    text-align: left;
+    flex-direction: row;
+    gap: 18px;
+    padding: 22px;
+  }
+  .stepBadge {
+    flex-shrink: 0;
+  }
+  .stepIcon {
+    display: none;
+  }
+  .stepTitle {
+    margin-top: 0;
+  }
+  .proofGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .title {
+    font-size: clamp(28px, 7vw, 38px);
+  }
+  .lead {
+    font-size: 16px;
+  }
+  .featureRow,
+  .featureRow[data-primary="true"] {
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+  }
+  .flagGrid {
+    grid-template-columns: 1fr;
+  }
+  .priceAmount {
+    font-size: 54px;
+  }
+  .priceBody {
+    padding: 24px 20px 22px;
+  }
+  .faqItem {
+    padding: 0 16px;
+  }
+  .faqItem > summary {
+    font-size: 14.5px;
+  }
+  .ctaActions > a {
+    width: 100%;
+  }
+}
+@media (max-width: 470px) {
+  .statGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panelLift,
+  .buttonPrimary,
+  .buttonGhost,
+  .faqItem,
+  .faqItem > summary > span {
+    transition: none;
+  }
+  .panelLift:hover,
+  .buttonPrimary:hover,
+  .buttonGhost:hover {
+    transform: none;
+  }
+}
