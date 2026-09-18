@@ -3,26 +3,43 @@ import { downloadDocument } from "./download-document.js"
 import { rasterizePdf } from "./rasterize.js"
 import { extractQuantities } from "./extract.js"
 import { extractBidForm } from "./extract-bid-form.js"
-import { extractPlanCallouts, type BidItemHint } from "./extract-plan-callouts.js"
+import {
+  extractPlanCallouts,
+  type BidItemHint,
+} from "./extract-plan-callouts.js"
 import { extractQuoteConditions } from "./extract-quote-conditions.js"
 import { extractPlanHolders } from "./extract-plan-holders.js"
 import { extractParticipationGoals } from "./extract-participation-goals.js"
-import { checkSpendCap, checkTakeoffRateLimit, formatUsd, recordAiUsage } from "./ai-limits.js"
+import {
+  checkSpendCap,
+  checkTakeoffRateLimit,
+  formatUsd,
+  recordAiUsage,
+} from "./ai-limits.js"
 import { captureTakeoffCompleted } from "./analytics.js"
+import {
+  assertDocumentStoragePath,
+  assertNever,
+  createPlanTakeoffResult,
+  formatProcessingFailure,
+  type ProcessingStage,
+} from "./job-contracts.js"
 import { logger } from "./logger.js"
-import type { TakeoffResult } from "./types.js"
-
-export type ClaimedJob = {
-  id: string
-  org_id: string
-  document_id: string
-}
+import type {
+  ClaimedJob,
+  DocumentForProcessing,
+  TakeoffResult,
+} from "./types.js"
 
 // error is optional — pass the actual caught exception when there is one
 // (an unexpected failure) so Sentry gets a real stack trace, not just a
 // message. The rate-limit/spend-cap paths below aren't bugs, they're
 // expected control flow, so they don't pass one.
-async function failJob(job: ClaimedJob, message: string, error?: unknown): Promise<void> {
+async function failJob(
+  job: ClaimedJob,
+  message: string,
+  error?: unknown
+): Promise<void> {
   await sql`
     update takeoff_job set status = 'failed', error = ${message}, updated_at = now()
     where id = ${job.id} and org_id = ${job.org_id}
@@ -49,22 +66,36 @@ async function failJob(job: ClaimedJob, message: string, error?: unknown): Promi
   `
   logger.error(
     "Takeoff job failed",
-    { jobId: job.id, orgId: job.org_id, documentId: job.document_id, reason: message },
-    error,
+    {
+      jobId: job.id,
+      orgId: job.org_id,
+      documentId: job.document_id,
+      reason: message,
+    },
+    error
   )
 }
 
 export async function processJob(job: ClaimedJob) {
-  logger.info("Processing takeoff job", { jobId: job.id, orgId: job.org_id, documentId: job.document_id })
+  logger.info("Processing takeoff job", {
+    jobId: job.id,
+    orgId: job.org_id,
+    documentId: job.document_id,
+  })
+
+  let document: DocumentForProcessing | undefined
+  let stage: ProcessingStage = "loading document"
 
   try {
-    const [document] = await sql`
+    ;[document] = await sql<DocumentForProcessing[]>`
       select storage_bucket, storage_path, file_name, type, mime_type, project_id
       from document
       where id = ${job.document_id} and org_id = ${job.org_id}
     `
     if (!document) {
-      throw new Error(`Document ${job.document_id} not found (or not in org ${job.org_id})`)
+      throw new Error(
+        `Document ${job.document_id} not found (or not in org ${job.org_id})`
+      )
     }
 
     // Step 30 security review: downloadDocument uses the service-role key,
@@ -82,28 +113,20 @@ export async function processJob(job: ClaimedJob) {
     // the right org id — and the URL parser in downloadDocument then
     // resolved the `..` before the request left the process. Splitting first
     // means the org id has to be the actual first path segment.
-    const pathSegments = document.storage_path.split("/")
-    if (pathSegments[0] !== job.org_id) {
-      throw new Error(
-        `Document ${job.document_id}'s storage path doesn't match its own org — refusing to download.`,
-      )
-    }
-    if (pathSegments.some((segment) => segment === "" || segment === "." || segment === "..")) {
-      throw new Error(
-        `Document ${job.document_id}'s storage path contains a relative segment — refusing to download.`,
-      )
-    }
+    stage = "validating document storage"
+    assertDocumentStoragePath(job, document.storage_path)
 
     // Step 25: authoritative checks, immediately before the paid Claude
     // call — the app's confirmDocumentUpload already checked both at
     // queue time, but a job can sit queued across a rate-limit window
     // resetting or a new spend-cap month starting, so this is the check
     // that actually governs whether money gets spent.
+    stage = "checking AI limits"
     const rateLimit = await checkTakeoffRateLimit(job.org_id)
     if (!rateLimit.allowed) {
       await failJob(
         job,
-        `Too many takeoff requests — please wait about ${rateLimit.retryAfterSeconds}s and try again.`,
+        `Too many takeoff requests — please wait about ${rateLimit.retryAfterSeconds}s and try again.`
       )
       return
     }
@@ -112,7 +135,7 @@ export async function processJob(job: ClaimedJob) {
     if (spendCap.overCap) {
       await failJob(
         job,
-        `Your organization has reached its monthly AI usage limit (${formatUsd(spendCap.capUsd)} used this month). AI document processing is paused until next month — you can still upload documents and build your estimate manually.`,
+        `Your organization has reached its monthly AI usage limit (${formatUsd(spendCap.capUsd)} used this month). AI document processing is paused until next month — you can still upload documents and build your estimate manually.`
       )
       return
     }
@@ -133,7 +156,11 @@ export async function processJob(job: ClaimedJob) {
       where document_id = ${job.document_id} and org_id = ${job.org_id}
     `
 
-    const fileBytes = await downloadDocument(document.storage_bucket, document.storage_path)
+    stage = "downloading document"
+    const fileBytes = await downloadDocument(
+      document.storage_bucket,
+      document.storage_path
+    )
 
     // Step 40, extended in step 41 and again for plan holders and specs:
     // which extractor runs is decided by the document's own type, set at
@@ -157,148 +184,162 @@ export async function processJob(job: ClaimedJob) {
     let itemCount: number
     let usageKind: string
 
-    if (document.type === "bid_form") {
-      const extracted = await extractBidForm(fileBytes)
-      result = { kind: "bid_form", bidItems: extracted.items }
-      usage = extracted.usage
-      itemCount = extracted.items.length
-      usageKind = "bid_form_extraction"
-      if (extracted.documentNotes) {
-        logger.info("Bid form extraction notes", {
-          jobId: job.id,
-          documentId: job.document_id,
+    switch (document.type) {
+      case "bid_form": {
+        stage = "extracting bid form"
+        const extracted = await extractBidForm(fileBytes)
+        result = { kind: "bid_form", bidItems: extracted.items }
+        usage = extracted.usage
+        itemCount = extracted.items.length
+        usageKind = "bid_form_extraction"
+        if (extracted.documentNotes) {
+          logger.info("Bid form extraction notes", {
+            jobId: job.id,
+            documentId: job.document_id,
+            documentNotes: extracted.documentNotes,
+          })
+        }
+        break
+      }
+      case "sub_quote": {
+        stage = "extracting subcontractor quote"
+        // The only extractor that takes a mime type: a sub quote is as likely
+        // to be a phone photo of a fax as a PDF, and the two need different
+        // content blocks. Falls back to PDF when mime_type is null — the
+        // upload path records one, and PDF is the safer legacy fallback.
+        const extracted = await extractQuoteConditions(
+          fileBytes,
+          document.mime_type ?? "application/pdf"
+        )
+        result = {
+          kind: "sub_quote",
+          conditions: extracted.conditions,
+          quoteTotalAmount: extracted.quoteTotalAmount,
           documentNotes: extracted.documentNotes,
-        })
+        }
+        usage = extracted.usage
+        itemCount = extracted.conditions.length
+        usageKind = "quote_conditions_extraction"
+        if (extracted.documentNotes) {
+          logger.info("Sub quote extraction notes", {
+            jobId: job.id,
+            documentId: job.document_id,
+            documentNotes: extracted.documentNotes,
+          })
+        }
+        break
       }
-    } else if (document.type === "sub_quote") {
-      // The only extractor that takes a mime type: a sub quote is as likely
-      // to be a phone photo of a fax as a PDF, and the two need different
-      // content blocks. Falls back to PDF when mime_type is somehow null —
-      // the upload path always records one, and PDF is the safer guess for a
-      // document that got here without it.
-      const extracted = await extractQuoteConditions(
-        fileBytes,
-        document.mime_type ?? "application/pdf",
-      )
-      result = {
-        kind: "sub_quote",
-        conditions: extracted.conditions,
-        quoteTotalAmount: extracted.quoteTotalAmount,
-        documentNotes: extracted.documentNotes,
-      }
-      usage = extracted.usage
-      itemCount = extracted.conditions.length
-      usageKind = "quote_conditions_extraction"
-      if (extracted.documentNotes) {
-        logger.info("Sub quote extraction notes", {
-          jobId: job.id,
-          documentId: job.document_id,
+      case "plan_holders": {
+        stage = "extracting plan holders"
+        const extracted = await extractPlanHolders(fileBytes)
+        result = {
+          kind: "plan_holders",
+          planHolders: extracted.holders,
+          planHoldersIssuedOn: extracted.issuedOn,
           documentNotes: extracted.documentNotes,
-        })
+        }
+        usage = extracted.usage
+        itemCount = extracted.holders.length
+        usageKind = "plan_holders_extraction"
+        if (extracted.documentNotes) {
+          logger.info("Plan holders extraction notes", {
+            jobId: job.id,
+            documentId: job.document_id,
+            documentNotes: extracted.documentNotes,
+          })
+        }
+        break
       }
-    } else if (document.type === "plan_holders") {
-      const extracted = await extractPlanHolders(fileBytes)
-      result = {
-        kind: "plan_holders",
-        planHolders: extracted.holders,
-        planHoldersIssuedOn: extracted.issuedOn,
-        documentNotes: extracted.documentNotes,
-      }
-      usage = extracted.usage
-      itemCount = extracted.holders.length
-      usageKind = "plan_holders_extraction"
-      if (extracted.documentNotes) {
-        logger.info("Plan holders extraction notes", {
-          jobId: job.id,
-          documentId: job.document_id,
+      case "specifications": {
+        stage = "extracting specifications"
+        const extracted = await extractParticipationGoals(fileBytes)
+        result = {
+          kind: "specifications",
+          participationGoals: extracted.goals,
+          specLinks: extracted.links,
           documentNotes: extracted.documentNotes,
-        })
+        }
+        usage = extracted.usage
+        itemCount = extracted.goals.length
+        usageKind = "participation_goals_extraction"
+        if (extracted.documentNotes) {
+          logger.info("Specifications extraction notes", {
+            jobId: job.id,
+            documentId: job.document_id,
+            documentNotes: extracted.documentNotes,
+          })
+        }
+        break
       }
-    } else if (document.type === "specifications") {
-      const extracted = await extractParticipationGoals(fileBytes)
-      result = {
-        kind: "specifications",
-        participationGoals: extracted.goals,
-        specLinks: extracted.links,
-        documentNotes: extracted.documentNotes,
-      }
-      usage = extracted.usage
-      itemCount = extracted.goals.length
-      usageKind = "participation_goals_extraction"
-      if (extracted.documentNotes) {
-        logger.info("Specifications extraction notes", {
-          jobId: job.id,
-          documentId: job.document_id,
-          documentNotes: extracted.documentNotes,
-        })
-      }
-    } else {
-      const rasterized = await rasterizePdf(fileBytes)
-      const pages = rasterized.pages
+      case "plans":
+      case "addendum":
+      case "other": {
+        stage = "extracting plan quantities"
+        const rasterized = await rasterizePdf(fileBytes)
+        const pages = rasterized.pages
 
-      // Two reads of the same sheets. The takeoff measures one quantity per
-      // item for the whole set; the callout pass transcribes what each
-      // sheet prints, for the sheet-by-sheet matrix. They're one job (one
-      // upload, one status, one failure) but two lines of AI spend, so the
-      // callout usage is recorded separately below under its own kind.
-      //
-      // The bid form's items go into the callout prompt when the
-      // contractor imported it before uploading the plans — the model
-      // links a printed quantity to an item number far more reliably with
-      // the sheet in front of it than the app can from text afterwards.
-      // Scoped to this document's own project and org like every other
-      // query in this file; an empty list is the normal case for a plan
-      // set uploaded first, and the app-side matcher covers it.
-      const bidRows = await sql<BidItemHint[]>`
-        select item_number as "itemNumber", description, unit,
-               official_quantity::float as quantity
-        from bid
-        where project_id = ${document.project_id} and org_id = ${job.org_id}
-        order by created_at
-      `
-      const [extracted, callouts] = await Promise.all([
-        extractQuantities(pages),
-        extractPlanCallouts(pages, bidRows),
-      ])
-      result = {
-        kind: "plan_takeoff",
-        items: extracted.items,
-        callouts: callouts.callouts,
-        // Persisted so the app can tell the contractor how much of the plan
-        // set was actually read. Silently capping a 180-sheet set at 20 and
-        // reporting "Processing complete" is how someone bids off 11% of the
-        // drawings — see worker/src/rasterize.ts.
-        pageCount: rasterized.pageCount,
-        pagesRead: rasterized.pagesRead,
-      }
-      usage = extracted.usage
-      itemCount = extracted.items.length
-      usageKind = "takeoff_extraction"
-      if (rasterized.truncated) {
-        logger.warn("Plan takeoff truncated to the page cap", {
-          jobId: job.id,
-          documentId: job.document_id,
+        // Two reads of the same sheets. The takeoff measures one quantity per
+        // item for the whole set; the callout pass transcribes what each
+        // sheet prints, for the sheet-by-sheet matrix. They're one job (one
+        // upload, one status, one failure) but two lines of AI spend, so the
+        // callout usage is recorded separately below under its own kind.
+        const bidRows = await sql<BidItemHint[]>`
+          select item_number as "itemNumber", description, unit,
+                 official_quantity::float as quantity
+          from bid
+          where project_id = ${document.project_id} and org_id = ${job.org_id}
+          order by created_at
+        `
+        const [extracted, callouts] = await Promise.all([
+          extractQuantities(pages),
+          extractPlanCallouts(pages, bidRows),
+        ])
+        result = createPlanTakeoffResult({
+          items: extracted.items,
+          callouts: callouts.callouts,
           pageCount: rasterized.pageCount,
           pagesRead: rasterized.pagesRead,
         })
+        usage = extracted.usage
+        itemCount = extracted.items.length
+        usageKind = "takeoff_extraction"
+        if (rasterized.truncated) {
+          logger.warn("Plan takeoff truncated to the page cap", {
+            jobId: job.id,
+            documentId: job.document_id,
+            pageCount: rasterized.pageCount,
+            pagesRead: rasterized.pagesRead,
+          })
+        }
+        await recordAiUsage(
+          job.org_id,
+          "plan_callouts_extraction",
+          callouts.usage.model,
+          callouts.usage.inputTokens,
+          callouts.usage.outputTokens
+        )
+        logger.info("Plan callouts extracted", {
+          jobId: job.id,
+          documentId: job.document_id,
+          calloutCount: callouts.callouts.length,
+          bidItemsProvided: bidRows.length,
+        })
+        break
       }
-      await recordAiUsage(
-        job.org_id,
-        "plan_callouts_extraction",
-        callouts.usage.model,
-        callouts.usage.inputTokens,
-        callouts.usage.outputTokens,
-      )
-      logger.info("Plan callouts extracted", {
-        jobId: job.id,
-        documentId: job.document_id,
-        calloutCount: callouts.callouts.length,
-        bidItemsProvided: bidRows.length,
-      })
+      default:
+        assertNever(document.type)
     }
 
-    await recordAiUsage(job.org_id, usageKind, usage.model, usage.inputTokens, usage.outputTokens)
+    stage = "recording AI usage"
+    await recordAiUsage(
+      job.org_id,
+      usageKind,
+      usage.model,
+      usage.inputTokens,
+      usage.outputTokens
+    )
 
+    stage = "persisting extraction result"
     await sql`
       update takeoff_job
       set status = 'complete', result = ${sql.json(result)}, updated_at = now()
@@ -332,13 +373,19 @@ export async function processJob(job: ClaimedJob) {
       outputTokens: usage.outputTokens,
     })
 
+    stage = "recording completion analytics"
     await captureTakeoffCompleted(job.org_id, {
       jobId: job.id,
       documentId: job.document_id,
       itemCount,
     })
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
+    const message = formatProcessingFailure({
+      job,
+      document,
+      stage,
+      error: err,
+    })
     await failJob(job, message, err)
   }
 }

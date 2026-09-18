@@ -1,5 +1,6 @@
 import { sql } from "./db.js"
-import { processJob, type ClaimedJob } from "./process-job.js"
+import { processJob } from "./process-job.js"
+import type { ClaimedJob } from "./types.js"
 
 /**
  * Claims at most one queued job and processes it. Uses FOR UPDATE SKIP

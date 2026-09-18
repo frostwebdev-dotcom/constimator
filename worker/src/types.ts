@@ -144,33 +144,82 @@ export type ExtractedPlanCallout = {
   notes?: string
 }
 
-// Shape written into takeoff_job.result on success. `kind` says which
-// extractor ran, and only one of items/bidItems/conditions is ever populated
-// — app/processing/actions.ts keys off that to decide whether a result should
-// feed the estimate (plan takeoff) or not (bid form, which is the *other*
-// side of the reconciliation and must never become the contractor's own
-// estimate lines; sub quotes, which are a third party's pricing and belong to
-// the leveling grid, not to this contractor's estimate either; plan
-// holders, which are who else is bidding and say nothing about the work; and
-// specifications, which carry the participation requirement and likewise no
-// quantities).
-export type TakeoffResult = {
-  kind?: "plan_takeoff" | "bid_form" | "sub_quote" | "plan_holders" | "specifications"
-  items?: ExtractedTakeoffItem[]
-  // Set alongside `items` for kind "plan_takeoff" — the quantities printed
-  // on the same sheets, read by a second call. Optional because jobs that
-  // ran before the callout extractor existed have no such field; the
-  // matrix simply shows nothing for those documents.
-  callouts?: ExtractedPlanCallout[]
-  bidItems?: ExtractedBidItem[]
-  conditions?: ExtractedQuoteCondition[]
-  planHolders?: ExtractedPlanHolder[]
-  /** Printed on the roster when it prints one, ISO yyyy-mm-dd. */
-  planHoldersIssuedOn?: string
-  /** Set only for kind "specifications". */
-  participationGoals?: ExtractedParticipationGoal[]
-  /** Set only for kind "specifications" — the links printed beside the goals. */
-  specLinks?: ExtractedSpecLink[]
+// The database enum lives in the Next.js package, which this standalone
+// worker intentionally does not import. Keep this closed union synchronized
+// with db/schema.ts's documentTypeEnum. The exhaustive switch in
+// process-job.ts then makes a newly added document type a compile failure
+// instead of silently routing it through plan takeoff.
+export type DocumentType =
+  | "plans"
+  | "specifications"
+  | "bid_form"
+  | "addendum"
+  | "sub_quote"
+  | "plan_holders"
+  | "other"
+
+// Exact payload returned by worker/src/poll.ts's claim query. All three
+// columns are NOT NULL in db/schema.ts.
+export type ClaimedJob = {
+  id: string
+  org_id: string
+  document_id: string
+}
+
+// Exact projection loaded by process-job.ts. mime_type is the only nullable
+// selected column; every other field is NOT NULL in db/schema.ts.
+export type DocumentForProcessing = {
+  storage_bucket: string
+  storage_path: string
+  file_name: string
+  type: DocumentType
+  mime_type: string | null
+  project_id: string
+}
+
+// Shapes written into takeoff_job.result by the current worker. This is a
+// strict discriminated union: each kind owns its required payload, so output
+// from one extractor cannot be accidentally persisted as another kind.
+// The app-side database type remains backward-compatible with older rows
+// whose kind or newer fields may be absent; new worker writes are stricter.
+export type PlanTakeoffResult = {
+  kind: "plan_takeoff"
+  items: ExtractedTakeoffItem[]
+  callouts: ExtractedPlanCallout[]
+  pageCount: number
+  pagesRead: number
+}
+
+export type BidFormResult = {
+  kind: "bid_form"
+  bidItems: ExtractedBidItem[]
+}
+
+export type SubQuoteResult = {
+  kind: "sub_quote"
+  conditions: ExtractedQuoteCondition[]
   quoteTotalAmount?: number
   documentNotes?: string
 }
+
+export type PlanHoldersResult = {
+  kind: "plan_holders"
+  planHolders: ExtractedPlanHolder[]
+  /** Printed on the roster when it prints one, ISO yyyy-mm-dd. */
+  planHoldersIssuedOn?: string
+  documentNotes?: string
+}
+
+export type SpecificationsResult = {
+  kind: "specifications"
+  participationGoals: ExtractedParticipationGoal[]
+  specLinks: ExtractedSpecLink[]
+  documentNotes?: string
+}
+
+export type TakeoffResult =
+  | PlanTakeoffResult
+  | BidFormResult
+  | SubQuoteResult
+  | PlanHoldersResult
+  | SpecificationsResult

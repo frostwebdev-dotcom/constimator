@@ -13,13 +13,19 @@ Sentry.init({
   tracesSampleRate: 0.1,
 })
 
+// Next.js 16 invokes this file-convention hook before App Router navigation.
+// Forward it to Sentry so client-side route changes create navigation spans;
+// without the export, only the initial page load is reliably instrumented.
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
+
 // Step 34 — product analytics. posthog.init() itself no-ops without a real
 // key (it just never sends anything), so this is safe to run unconditionally
 // rather than gating on process.env like every server-side integration in
 // this app does — there's no error to throw here, just nothing to do.
 if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+    api_host:
+      process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
     // Next.js App Router navigates via the History API, not full page
     // loads — PostHog's default pageview capture (tied to the browser's
     // load event) would only ever fire once. "history_change" tracks
@@ -29,4 +35,3 @@ if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
     person_profiles: "identified_only",
   })
 }
-
